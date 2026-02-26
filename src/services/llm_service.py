@@ -1,7 +1,7 @@
 from openai import OpenAI, APIError
 from src.core.exceptions import LLMServiceAPIException, LLMServiceUnexpectedException
 from src.config.settings import settings
-from src.core.prompts import GMAIL_GENERATOR_TEMPLATE, gmail_generator_prompt
+from src.core.prompts import gmail_generator_prompt
 
 class OpenAIService:
     """
@@ -18,18 +18,29 @@ class OpenAIService:
             cls._client = OpenAI(api_key=settings.OPENAI_API_KEY)
         return cls._instance
 
-    def generate_answer(self, job_description: str, resume_text: str) -> str:
+    def generate_answer(self, job_description: str, resume_text: str, product: str, role: str) -> str:
         """
         Generates an answer using the single, pre-initialized client.
+        
+        Args:
+            job_description: The job description text
+            resume_text: The extracted resume text
+            product: Product type ("linkedin" or "mail")
+            role: Target role ("manager", "ceo", "TL", or "HR")
         """
         try:
-            formatted_prompt = gmail_generator_prompt(context=job_description, resume_text=resume_text) 
+            formatted_prompt = gmail_generator_prompt(
+                context=job_description, 
+                resume_text=resume_text,
+                product=product,
+                role=role
+            ) 
             
             chat_completion = self._client.chat.completions.create(
                 messages=[{"role": "user", "content": formatted_prompt}],
                 model=settings.OPENAI_MODEL,
                 temperature=0.3,
-                max_tokens=200,
+                max_tokens=250,
                 top_p=0.9,
             )
             print("Token usage:", chat_completion.usage)
