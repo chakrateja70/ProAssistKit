@@ -9,7 +9,6 @@ from src.schemas.response import PDFDocumentData
 def load_pdf(file_path: str) -> PDFDocumentData:
     """Load PDF and extract all text"""
     path = Path(file_path)
-    
     if not path.exists():
         raise PDFNotFoundError(f"File not found: {file_path}")
     
@@ -42,3 +41,4 @@ def get_pdf_text(file_path: str) -> str:
     """Extracts text from pdf"""
     doc = load_pdf(file_path)
     return doc.text_content
+print("Document processed successfully and text extracted")
