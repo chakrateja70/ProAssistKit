@@ -1,0 +1,43 @@
+from openai import OpenAI, APIError
+from src.core.exceptions import LLMServiceAPIException, LLMServiceUnexpectedException
+from src.config.settings import settings
+from src.core.prompts import GMAIL_GENERATOR_TEMPLATE, gmail_generator_prompt
+
+class OpenAIService:
+    """
+    Service for OpenAI interactions using an optimized Singleton pattern.
+    This ensures the OpenAI client is initialized only once.
+    """
+    _instance = None
+    _client = None
+
+    def __new__(cls):
+        # This method ensures only one instance of OpenAIService is ever created
+        if cls._instance is None:
+            cls._instance = super(OpenAIService, cls).__new__(cls)
+            cls._client = OpenAI(api_key=settings.OPENAI_API_KEY)
+        return cls._instance
+
+    def generate_answer(self, job_description: str, resume_text: str) -> str:
+        """
+        Generates an answer using the single, pre-initialized client.
+        """
+        try:
+            formatted_prompt = gmail_generator_prompt(context=job_description, resume_text=resume_text) 
+            
+            chat_completion = self._client.chat.completions.create(
+                messages=[{"role": "user", "content": formatted_prompt}],
+                model=settings.OPENAI_MODEL,
+                temperature=0.3,
+                max_tokens=200,
+                top_p=0.9,
+            )
+            print("Token usage:", chat_completion.usage)
+            return chat_completion.choices[0].message.content.strip()
+
+        except APIError as e:   
+            raise LLMServiceAPIException(str(e))
+        except Exception as e:
+            raise LLMServiceUnexpectedException(str(e))
+
+openai_service = OpenAIService()
