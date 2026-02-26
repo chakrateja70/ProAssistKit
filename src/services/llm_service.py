@@ -36,11 +36,19 @@ class OpenAIService:
                 role=role
             ) 
             
+            # Dynamic token limits based on product type
+            token_limits = {
+                "linkedin": 300,      # Shorter message + "resume attached" line
+                "mail": 500,          # Email body + full signature block (name, phone, LinkedIn, GitHub)
+                "evaluation": 600     # Detailed evaluation content
+            }
+            max_tokens = token_limits.get(product, 500)
+            
             chat_completion = self._client.chat.completions.create(
                 messages=[{"role": "user", "content": formatted_prompt}],
                 model=settings.OPENAI_MODEL,
                 temperature=0.3,
-                max_tokens=250,
+                max_tokens=max_tokens,
                 top_p=0.9,
             )
             print("Token usage:", chat_completion.usage)
