@@ -53,7 +53,7 @@ class PDFExtractionError(BaseAPIException):
         super().__init__(
             status_code=HTTP_500_INTERNAL_SERVER_ERROR,
             status_message=STATUS_MESSAGES[HTTP_500_INTERNAL_SERVER_ERROR],
-            error_message=error_message
+            error_message= error_message
         )
 
 class PDFNotFoundError(BaseAPIException):
@@ -64,11 +64,3 @@ class PDFNotFoundError(BaseAPIException):
             status_message=STATUS_MESSAGES[HTTP_404_NOT_FOUND],
             error_message=error_message
         )
-
-class BaseAPIException(Exception):
-    """Base exception for all API errors"""
-    def __init__(self, status_code: int, status_message: str, error_message: str):
-        self.status_code = status_code
-        self.status_message = status_message
-        self.error_message = error_message
-        super().__init__(self.error_message)

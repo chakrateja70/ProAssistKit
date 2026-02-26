@@ -23,16 +23,7 @@ async def gmail_generator(
     product: ProductType = Form(..., description="Product type: linkedin or mail"),
     role: str = Form(..., description="Role: For linkedin (manager, ceo, TL, HR), For mail (HR only)")
 ):
-    """
-    Generate a professional LinkedIn message/Gmail based on resume, job description, product, and role.
-    
-    - **resume**: Upload resume file in PDF format
-    - **job_description**: The job description text
-    - **product**: Product type (linkedin or mail)
-    - **role**: Target role - depends on product:
-        - If product is "linkedin": manager, ceo, TL, or HR
-        - If product is "mail": HR only
-    """
+    """Generate a professional LinkedIn message or Gmail based on resume, job description, product, and role."""
     temp_file_path = None
     
     try:
@@ -40,10 +31,10 @@ async def gmail_generator(
         if product == ProductType.LINKEDIN:
             valid_roles = [r.value for r in LinkedInRole]
             if role not in valid_roles:
-                raise HTTPException(
-                    status_code=400, 
-                    detail=f"For product 'linkedin', role must be one of: {', '.join(valid_roles)}"
-                )
+                    raise HTTPException(
+                        status_code=400, 
+                        detail=f"For product 'linkedin', role must be one of: {', '.join(valid_roles)}"
+                    )
         elif product == ProductType.MAIL:
             valid_roles = [r.value for r in MailRole]
             if role not in valid_roles:
@@ -61,9 +52,11 @@ async def gmail_generator(
             temp_file_path = temp_file.name
             content = await resume.read()
             temp_file.write(content)
+        print(f"[FILE] ✓ Resume saved to temporary location: {temp_file_path}")
         
         # Extract text from resume PDF
         resume_text = get_pdf_text(temp_file_path)
+        print(f"[PDF] Text extracted successfully ({len(resume_text)} characters)")
         
         # Generate email using LLM service with dynamic role-based prompt
         generated_email = openai_service.generate_answer(
@@ -72,6 +65,7 @@ async def gmail_generator(
             product=product.value,
             role=role
         )
+        print(f"[LLM] ✓ Email generated successfully ({len(generated_email)} characters)")
         
         return GmailGeneratorResponse(
             success_code=200,
