@@ -34,11 +34,4 @@ def load_pdf(file_path: str) -> PDFDocumentData:
     except PDFNotFoundError:
         raise
     except Exception as e:
-        raise PDFExtractionError(f"Failed to extract text: {str(e)}")
-
-
-def get_pdf_text(file_path: str) -> str:
-    """Extracts text from pdf"""
-    doc = load_pdf(file_path)
-    return doc.text_content
-print("Document processed successfully and text extracted")
+        raise PDFExtractionError(f"Failed to extract text: {str(e)}")   
