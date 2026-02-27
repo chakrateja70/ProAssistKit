@@ -1,16 +1,9 @@
-def gmail_generator_prompt(context: str, resume_text: str, product: str, role: str) -> str:
+def gmail_generator_prompt(context: str, resume_text: str, product: str) -> str:
     """
-    Generate dynamic prompt based on product type and target role.
+    Generate dynamic prompt based on product type.
     Supports: "linkedin", "mail"
     """
-    role_guidance = {
-        "manager": "professional, results-focused, highlighting leadership and achievements",
-        "ceo": "executive-level, emphasizing strategic impact and accomplishments",
-        "TL": "technical yet approachable, showcasing expertise and collaboration",
-        "HR": "warm and professional, emphasizing cultural fit and enthusiasm"
-    }
-    
-    guidance = role_guidance.get(role, role_guidance["HR"])
+    guidance = "professional and engaging, emphasizing relevant experience and genuine interest"
     word_limit = 150 if product == "linkedin" else 250
     
     if product == "linkedin":
@@ -31,7 +24,7 @@ def gmail_generator_prompt(context: str, resume_text: str, product: str, role: s
 
             Include all contact details found in resume."""
                 
-    return f"""Craft a professional {product} message to a {role.upper()} for this job application.
+    return f"""Craft a professional {product} message for this job application.
 
             Tone: {guidance}
 

@@ -18,7 +18,7 @@ class OpenAIService:
             cls._client = OpenAI(api_key=settings.OPENAI_API_KEY)
         return cls._instance
 
-    def generate_answer(self, job_description: str, resume_text: str, product: str, role: str) -> str:
+    def generate_answer(self, job_description: str, resume_text: str, product: str) -> str:
         """
         Generates an answer using the single, pre-initialized client.
         
@@ -26,31 +26,33 @@ class OpenAIService:
             job_description: The job description text
             resume_text: The extracted resume text
             product: Product type ("linkedin" or "mail")
-            role: Target role ("manager", "ceo", "TL", or "HR")
         """
         try:
             formatted_prompt = gmail_generator_prompt(
                 context=job_description, 
                 resume_text=resume_text,
-                product=product,
-                role=role
+                product=product
             ) 
             
             # Dynamic token limits based on product type
             token_limits = {
                 "linkedin": 300,      # Shorter message + "resume attached" line
                 "mail": 500,          # Email body + full signature block (name, phone, LinkedIn, GitHub)
-                "evaluation": 600     # Detailed evaluation content
             }
             max_tokens = token_limits.get(product, 500)
             
             chat_completion = self._client.chat.completions.create(
-                messages=[{"role": "user", "content": formatted_prompt}],
-                model=settings.OPENAI_MODEL,
-                temperature=0.3,
-                max_tokens=max_tokens,
-                top_p=0.9,
-            )
+            model=settings.OPENAI_MODEL,
+            messages=[
+                {"role": "system", "content": "You are a professional career assistant who writes concise, tailored, and impactful job application emails and LinkedIn messages based strictly on the provided resume and job description. Do not hallucinate."},
+                {"role": "user", "content": formatted_prompt}
+            ],
+            temperature=0.4,
+            max_tokens=max_tokens,
+            top_p=0.9,
+            frequency_penalty=0.3,
+            presence_penalty=0.0,
+        )
             print("Token usage:", chat_completion.usage)
             return chat_completion.choices[0].message.content.strip()
 

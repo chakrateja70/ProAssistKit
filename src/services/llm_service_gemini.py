@@ -22,6 +22,11 @@ class GeminiLLMService:
     def generate_answer(self, job_description: str, resume_text: str, product: str) -> str:
         """
         Generates an answer using Gemini 2.5 Flash model.
+        
+        Args:
+            job_description: The job description text
+            resume_text: The extracted resume text
+            product: Product type ("linkedin" or "mail")
         """
         try:
             formatted_prompt = gmail_generator_prompt(
@@ -30,15 +35,16 @@ class GeminiLLMService:
                 product=product
             )
 
-
-            # Dynamic token limits based on product type
+            # Dynamic token limits based on product type (matching OpenAI service)
             token_limits = {
-                "linkedin": 3000,      # Increased for longer LinkedIn messages
-                "mail": 4000,         # Increased for full email body and signature
+                "linkedin": 300,      # Shorter message + "resume attached" line
+                "mail": 500,          # Email body + full signature block (name, phone, LinkedIn, GitHub)
             }
-            max_tokens = token_limits.get(product, 1000)
+            max_tokens = token_limits.get(product, 500)
+            
             generate_content_config = types.GenerateContentConfig(
-                max_output_tokens=max_tokens
+                max_output_tokens=max_tokens,
+                temperature=0.7,      # More creative/natural sounding text
             )
 
             # Stream the response and collect chunks

@@ -6,32 +6,21 @@ from src.utils.document_processing import load_pdf
 from src.schemas.response import (
     GmailGeneratorResponse, 
     GmailGeneratorData, 
-    ProductType, 
-    LinkedInRole, 
-    MailRole
+    ProductType
 )
 
 router = APIRouter()
-
-def validate_role_for_product(product: ProductType, role: str) -> None:
-    """Validate role is appropriate for the given product type."""
-    valid_roles = [r.value for r in (LinkedInRole if product == ProductType.LINKEDIN else MailRole)]
-    if role not in valid_roles:
-        raise HTTPException(status_code=400, detail=f"Invalid role for {product.value}: {', '.join(valid_roles)}")
 
 @router.post("/gmail-generator", response_model=GmailGeneratorResponse, status_code=200)
 async def gmail_generator(
     resume: UploadFile, 
     job_description: str = Form(..., description="Job description text"),
-    product: ProductType = Form(..., description="Product type: linkedin or mail"),
-    role: str = Form(..., description="Role: For linkedin (manager, ceo, TL, HR), For mail (HR only)")):
+    product: ProductType = Form(..., description="Product type: linkedin or mail")):
         
-        """Generate a professional LinkedIn message or Gmail based on resume, job description, product, and role."""
+        """Generate a professional LinkedIn message or Gmail based on resume, job description, and product."""
         temp_file_path = None
         
         try:
-            # Validate role based on product
-            validate_role_for_product(product, role)
             
             # Validate file type
             if not resume.filename.endswith('.pdf'):
@@ -48,12 +37,11 @@ async def gmail_generator(
             resume_text = load_pdf(temp_file_path).text_content
             print(f"[PDF] Text extracted successfully ({len(resume_text)} characters)")
             
-            # Generate email using LLM service with dynamic role-based prompt
+            # Generate email using LLM service
             generated_email = llm_service.generate_answer(
                 job_description=job_description,
                 resume_text=resume_text,
-                product=product.value,
-                role=role
+                product=product.value
             )
             print(f"[LLM] ✓ Email generated successfully ({len(generated_email)} characters)")
             
@@ -63,8 +51,7 @@ async def gmail_generator(
                 data=GmailGeneratorData(
                     generated_email=generated_email,
                     resume_filename=resume.filename,
-                    product=product,
-                    role=role
+                    product=product
                 )
             )
         
