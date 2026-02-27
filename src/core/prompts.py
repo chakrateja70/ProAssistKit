@@ -1,23 +1,53 @@
-def gmail_generator_prompt(context: str, resume_text: str) -> str:
-    return f"""
-      You are an expert career coach specializing in crafting job application emails.
-      
-      OBJECTIVE:
-      Draft a concise, compelling email to a hiring manager applying for a job.
-      Use the provided job description and resume details to tailor the email.
+def gmail_generator_prompt(context: str, resume_text: str, product: str, role: str) -> str:
+    """
+    Generate dynamic prompt based on product type and target role.
+    Supports: "linkedin", "mail"
+    """
+    role_guidance = {
+        "manager": "professional, results-focused, highlighting leadership and achievements",
+        "ceo": "executive-level, emphasizing strategic impact and accomplishments",
+        "TL": "technical yet approachable, showcasing expertise and collaboration",
+        "HR": "warm and professional, emphasizing cultural fit and enthusiasm"
+    }
+    
+    guidance = role_guidance.get(role, role_guidance["HR"])
+    word_limit = 150 if product == "linkedin" else 250
+    
+    if product == "linkedin":
+        structure_instruction = "Return ONLY the message body with no subject line."
+    else:
+        structure_instruction = """Format:
+            Subject: [Concise subject mentioning the role]
 
-      JOB DESCRIPTION:
-      {context}
+            [Email body]
 
-      RESUME DETAILS:
-      {resume_text}
+            ---
+            Please find my resume attached below.
 
-      STRICT INSTRUCTIONS:
-      - Keep the email under 200 words.
-      - Highlight relevant skills and experiences that match the job description.
-      - Use a professional yet engaging tone.
-      - Do NOT include any information not present in the job description or resume details.
+            [Full Name]
+            [Phone Number]
+            LinkedIn: [URL if available in resume]
+            GitHub: [URL if available in resume]
 
-      OUTPUT:
-      Return ONLY the email body as plain text. No greetings, no signatures, no explanations.
-      """
+            Include all contact details found in resume."""
+                
+    return f"""Craft a professional {product} message to a {role.upper()} for this job application.
+
+            Tone: {guidance}
+
+            JOB DESCRIPTION:
+            {context}
+
+            RESUME:
+            {resume_text}
+
+            REQUIREMENTS:
+            - Use clear, simple language - avoid jargon
+            - Express genuine interest in the role with specific reasons
+            - Match 2-3 relevant resume experiences to job requirements with concrete examples
+            - Professional yet personable tone
+            - MAXIMUM {word_limit} words for body content
+            - Use ONLY information from resume and job description - do not fabricate details
+            - Show enthusiasm without being overly casual
+
+            {structure_instruction}"""
