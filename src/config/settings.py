@@ -17,7 +17,7 @@ class Settings:
 
         # Gemini LLM settings
         self.GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY","")
-        self.GEMINI_LLM_MODEL: str = os.getenv("GEMINI_LLM_MODEL", "gemini-2.5-flash")
+        self.GEMINI_LLM_MODEL: str = "gemini-2.5-flash"
 
     @staticmethod
     def _get_required(key: str) -> str:
