@@ -7,17 +7,6 @@ class ProductType(str, Enum):
     LINKEDIN = "linkedin"
     MAIL = "mail"
 
-class LinkedInRole(str, Enum):
-    """Roles for LinkedIn messages"""
-    MANAGER = "manager"
-    CEO = "ceo"
-    TL = "TL"
-    HR = "HR"
-
-class MailRole(str, Enum):
-    """Roles for email messages"""
-    HR = "HR"
-
 class ResponseBase(BaseModel):
     """Base response model"""
     success: bool
@@ -36,10 +25,15 @@ class GmailGeneratorData(BaseModel):
     generated_email: str
     resume_filename: str
     product: ProductType
-    role: str
     
 class GmailGeneratorResponse(BaseModel):
     """Gmail generator endpoint response"""
     success_code: int = Field(default=200, description="Success status code")
     message: str = Field(default="email successfully generated")
     data: GmailGeneratorData
+
+class GmailSenderError(BaseModel):
+    """Gmail sender error response"""
+    success_code: int = Field(default=500, description="Error status code")
+    message: str = Field(default="Failed to send email")
+    error_details: Optional[str] = None
