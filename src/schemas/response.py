@@ -31,3 +31,9 @@ class GmailGeneratorResponse(BaseModel):
     success_code: int = Field(default=200, description="Success status code")
     message: str = Field(default="email successfully generated")
     data: GmailGeneratorData
+
+class GmailSenderError(BaseModel):
+    """Gmail sender error response"""
+    success_code: int = Field(default=500, description="Error status code")
+    message: str = Field(default="Failed to send email")
+    error_details: Optional[str] = None
