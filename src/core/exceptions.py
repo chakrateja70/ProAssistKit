@@ -64,3 +64,12 @@ class PDFNotFoundError(BaseAPIException):
             status_message=STATUS_MESSAGES[HTTP_404_NOT_FOUND],
             error_message=error_message
         )
+
+class GmailSendError(BaseAPIException):
+    """Exception when Gmail API fails to send email"""
+    def __init__(self, error_message: str = "Failed to send email via Gmail API"):
+        super().__init__(
+            status_code=HTTP_500_INTERNAL_SERVER_ERROR,
+            status_message=STATUS_MESSAGES[HTTP_500_INTERNAL_SERVER_ERROR],
+            error_message=error_message
+        )
