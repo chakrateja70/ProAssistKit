@@ -1,3 +1,5 @@
+
+
 from pydantic import BaseModel, Field
 from typing import Optional, Any, List
 from enum import Enum
@@ -25,6 +27,7 @@ class GmailGeneratorData(BaseModel):
     generated_email: str
     resume_filename: str
     product: ProductType
+    receiver_email: Optional[str] = None
     
 class GmailGeneratorResponse(BaseModel):
     """Gmail generator endpoint response"""

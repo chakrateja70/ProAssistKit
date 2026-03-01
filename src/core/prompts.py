@@ -15,19 +15,13 @@ def gmail_generator_prompt(context: str, resume_text: str, product: str) -> str:
         return (
             f"Job Description:\n{context}\n\n"
             f"Resume:\n{resume_text}\n\n"
-            "Generate a professional email applying for the job. Include a brief introduction expressing interest in the position. "
-            "Carefully analyze the job description and identify key requirements. Then, highlight 2-3 key elements from the resume "
-            "(skills, experiences, projects, or achievements) that directly align with and fulfill the job requirements. "
-            "Use specific examples and concrete details from the resume to demonstrate qualification. "
-            "\n\nIMPORTANT: If there are relevant PROJECTS in the resume, include a small overview of 1-2 key projects that demonstrate your capabilities "
-            "and align with the job requirements. For each project mentioned, briefly describe what it does and the technologies/skills used, "
-            "showing how it relates to the position you're applying for. Keep project descriptions concise but impactful."
-            "\n\nInclude a polite closing expressing enthusiasm for the opportunity. "
-            "Add a professional signature block with name, phone number, LinkedIn profile, and GitHub link (if available in resume). "
-            "\n\nIMPORTANT: If you find an email address in the job description, extract it and return it on a new line at the very end in this exact format:\n"
-            "RECEIVER_EMAIL: [email_address]\n"
-            "If no email is found in the job description, return:\n"
-            "RECEIVER_EMAIL: None"
+            """Act as a recruitment expert. Write a job application email (<120 words) for the role in {context} using {resume_text}.
+1. INTRO: One sentence connecting my background to the company's specific mission.
+2. BODY: Two bullet points using the "Action-Context-Result" framework (e.g., "Reduced X by 25% using Y") to prove JD-Resume alignment.
+3. PROJECT: One sentence on a high-impact project, stating the tech stack and its real-world outcome.
+4. CONSTRAINTS: No generic fluff (passionate/hardworking); first-person; evidence-based only; signature included.
+5. SIGNATURE: Name, phone, LinkedIn, GitHub (only if in resume).
+6. EXTRACTION: At the very end, return "RECEIVER_EMAIL: [email]" if found in the JD, else "RECEIVER_EMAIL: None"."""
         )
     else:
         raise ValueError(f"Unsupported product type: {product}")

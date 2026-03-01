@@ -1,4 +1,4 @@
-from src.services.llm_service import OpenAIService
+from services.llm_service import OpenAIService
 
 def test_openai_service_initialization():
     content = "Chakra Teja is a AI Engineer"

@@ -16,8 +16,12 @@ class Settings:
         self.OPENAI_MODEL: str = "gpt-4o-mini"
 
         # Gemini LLM settings
-        self.GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY","")
+        self.GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
         self.GEMINI_LLM_MODEL: str = "gemini-2.5-flash"
+
+        # Groq LLM settings
+        self.GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
+        self.GROQ_LLM_MODEL: str = "llama-3.3-70b-versatile"
 
     @staticmethod
     def _get_required(key: str) -> str:

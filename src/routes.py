@@ -39,39 +39,24 @@ async def gmail_generator(
             print(f"[PDF] Text extracted successfully ({len(resume_text)} characters)")
             
             # Generate email using LLM service
-            generated_email = llm_service.generate_answer(
+            result = llm_service.generate_answer(
                 job_description=job_description,
                 resume_text=resume_text,
                 product=product.value
             )
+            generated_email = result["response_text"]
+            receiver_gmail = result["receiver_mail"] if product == ProductType.MAIL else None
             print(f"[LLM] ✓ Email generated successfully ({len(generated_email)} characters)")
-            
-            # Extract receiver email from generated response if product is mail
-            receiver_gmail = None
-            if product == ProductType.MAIL:
-                # Look for RECEIVER_EMAIL marker in the generated content
-                email_match = re.search(r'RECEIVER_EMAIL:\s*(.+?)(?:\n|$)', generated_email)
-                if email_match:
-                    extracted_email = email_match.group(1).strip()
-                    receiver_gmail = None if extracted_email.lower() == 'none' else extracted_email
-                    # Remove the RECEIVER_EMAIL line from the generated email
-                    generated_email = re.sub(r'\n*RECEIVER_EMAIL:.+?(?:\n|$)', '', generated_email).strip()
-                
-                # Fallback: Extract email directly from job description
-                if not receiver_gmail:
-                    email_pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
-                    emails_found = re.findall(email_pattern, job_description)
-                    receiver_gmail = emails_found[0] if emails_found else None
-            
             print(f"[EMAIL] Receiver email: {receiver_gmail}")
-            
+
             return GmailGeneratorResponse(
                 success_code=200,
                 message="email successfully generated",
                 data=GmailGeneratorData(
                     generated_email=generated_email,
                     resume_filename=resume.filename, #type: ignore
-                    product=product
+                    product=product,
+                    receiver_email=receiver_gmail
                 )
             )
         
